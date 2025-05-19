@@ -11,7 +11,7 @@ class MainController extends Controller
     public function main(Request $request)
     {
         // Ambil 5 data mobil dari database
-        $cars = Car::take(5)->get();
+        $cars = Car::where('status', 'Tersedia')->get();
 
         // Periksa apakah ada parameter query 'showUpdateModal'
         $showUpdateModal = $request->query('showUpdateModal', false);

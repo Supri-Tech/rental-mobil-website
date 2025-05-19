@@ -21,7 +21,6 @@
                             <li class="list-group-item">⚙️ Transmission: {{ $car->transmission }}</li>
                             <li class="list-group-item">🛣️ Mileage: {{ $car->mileage }}</li>
                         </ul>
-                        <a href="#" class="btn btn-success w-100">✅ Confirm Booking</a>
                     </div>
                 </div>
             </div>
@@ -35,8 +34,16 @@
                     <div class="card-body p-0">
                         <div id="map" style="height: 400px;" class="rounded-bottom"></div>
                     </div>
-                    <input type="hidden" name="latitude" id="latitude">
-                    <input type="hidden" name="longitude" id="longitude">
+                    <form method="POST" action="{{ route('booking.store', $car->id) }}">
+                        @csrf
+                        <label for="day" class="form-label">Sewa Berapa Hari</label>
+                        <input type="number" id="day" class="form-control" name="day"
+                            placeholder="Sewa Berapa Hari">
+                        <input type="hidden" name="pickup_latitude" id="latitude">
+                        <input type="hidden" name="pickup_longitude" id="longitude">
+                        <input type="hidden" name="distance" id="distance">
+                        <button type="submit" class="btn btn-success w-100 mt-4">✅ Confirm Booking</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -45,63 +52,43 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            var map = L.map('map');
+            var map = L.map('map').setView([-7.80303, 110.36196], 13);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
-            // Contoh destinasi di Jawa
-            var destinations = [{
-                    lat: -7.80303,
-                    lng: 110.36196,
-                    name: "Yogyakarta"
-                },
-                {
-                    lat: -6.2088,
-                    lng: 106.8456,
-                    name: "Jakarta"
-                },
-                {
-                    lat: -7.2575,
-                    lng: 112.7521,
-                    name: "Surabaya"
-                },
-                {
-                    lat: -6.93245,
-                    lng: 107.58911,
-                    name: "Bandung"
-                }
-            ];
+            var startPoint = L.latLng(-7.634705, 111.5259826);
+            L.marker(startPoint).addTo(map).bindPopup("Lokasi Anda Sekarang").openPopup();
 
-            destinations.forEach(function(dest) {
-                L.marker([dest.lat, dest.lng])
-                    .addTo(map)
-                    .bindPopup('<b>Destination</b><br />' + dest.name);
-            });
+            var destinationMarker;
 
-            // Fokus peta ke Pulau Jawa
-            var jawaBounds = L.latLngBounds(
-                [-8.8, 105.0], // Southwest (dekat Ujung Kulon)
-                [-5.5, 114.0] // Northeast (dekat Surabaya)
-            );
-            map.fitBounds(jawaBounds);
-
-            // Marker untuk user klik
-            var userMarker;
             map.on('click', function(e) {
-                if (!userMarker) {
-                    userMarker = L.marker(e.latlng).addTo(map);
+                var endPoint = e.latlng;
+
+                // Tambahkan / update marker tujuan
+                if (!destinationMarker) {
+                    destinationMarker = L.marker(endPoint).addTo(map);
                 } else {
-                    userMarker.setLatLng(e.latlng);
+                    destinationMarker.setLatLng(endPoint);
                 }
 
-                userMarker.bindPopup("Your destination: " + e.latlng.lat.toFixed(5) + ", " + e.latlng.lng
-                        .toFixed(5))
-                    .openPopup();
+                // Hitung jarak (meter → km)
+                var distanceMeters = startPoint.distanceTo(endPoint);
+                var distanceKm = (distanceMeters / 1000).toFixed(2);
 
-                document.getElementById('latitude').value = e.latlng.lat;
-                document.getElementById('longitude').value = e.latlng.lng;
+                // Tampilkan info jarak di marker
+                destinationMarker.bindPopup(
+                    "Titik Tujuan<br>" +
+                    // "Latitude: " + endPoint.lat.toFixed(5) + "<br>" +
+                    // "Longitude: " + endPoint.lng.toFixed(5) + "<br>" +
+                    "Jarak ke Pool: " + distanceKm + " km"
+                ).openPopup();
+
+                // (Opsional) Simpan ke input hidden untuk submit
+                document.getElementById('latitude').value = endPoint.lat;
+                document.getElementById('longitude').value = endPoint.lng;
+                document.getElementById('distance').value = distanceKm, "Km";
             });
         });
     </script>

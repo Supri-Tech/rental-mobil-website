@@ -14,13 +14,13 @@ class CarController extends Controller
         $query = Car::query();
         if ($request->filled('search')) {
             $query->where('brand', 'LIKE', "%{$request->search}%")
-                  ->orWhere('model', 'LIKE', "%{$request->search}%");
+                ->orWhere('model', 'LIKE', "%{$request->search}%");
         }
-    
+
         if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
-    
+
         $cars = $query->with('category')->get();
         $categories = CarCategory::all();
 
@@ -44,7 +44,7 @@ class CarController extends Controller
             'fuel_type' => 'nullable|in:Bensin,Diesel,Hybrid,Elektrik',
             'passenger_capacity' => 'nullable|integer',
             'base_price_per_day' => 'nullable|numeric',
-            'status' => 'nullable|in:Tersedia,Diperbaiki,Tidak Aktif',
+            'status' => 'nullable|in:Tersedia,Diperbaiki,Tidak Aktif,Booked',
             'image_primary' => 'nullable|image|max:2048',
             'images_additional' => 'nullable|image|max:2048',
         ]);
@@ -56,7 +56,7 @@ class CarController extends Controller
         if ($request->hasFile('image_primary')) {
             $car->image_primary = $request->file('image_primary')->store('images/cars', 'public');
         }
-        
+
         // Simpan data ke database
         $car->save();
 
@@ -79,7 +79,7 @@ class CarController extends Controller
             'fuel_type' => 'nullable|in:Bensin,Diesel,Hybrid,Elektrik',
             'passenger_capacity' => 'nullable|integer',
             'base_price_per_day' => 'nullable|numeric',
-            'status' => 'nullable|in:Tersedia,Diperbaiki,Tidak Aktif',
+            'status' => 'nullable|in:Tersedia,Diperbaiki,Tidak Aktif,Booked',
             'image_primary' => 'nullable|image|max:2048', // Max 2MB
         ]);
 
@@ -103,7 +103,7 @@ class CarController extends Controller
                 }
                 $image->delete();
             }
-        
+
             // Simpan gambar tambahan baru
             foreach ($request->file('images_additional') as $file) {
                 $path = $file->store('images/cars/additional', 'public');
@@ -131,5 +131,4 @@ class CarController extends Controller
 
         return redirect()->route('data-mobil.dashboard')->with('success', 'Mobil berhasil dihapus.');
     }
-
 }

@@ -55,4 +55,9 @@ class User extends Authenticatable
         'password' => 'hashed',
         'tanggal_lahir' => 'date',
     ];
+
+    public function bookings()
+    {
+        return $this->hasMany(Bookings::class);
+    }
 }

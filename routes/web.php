@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CarCategoryController;
 use App\Http\Controllers\CarController;
@@ -27,6 +28,8 @@ Route::get('/', [MainController::class, 'main'])->name('main');
 // Halaman Profile
 Route::middleware('auth')->group(function () {
     Route::get('/booking/{id}', [MainController::class, 'book'])->name('booking');
+    Route::post('/booking/{id}', [BookingController::class, 'store'])->name('booking.store');
+    Route::post('/booking/{id}', [BookingController::class, 'store'])->name('booking.store');
     // Route untuk Profile
     Route::get('user/profile', [MainController::class, 'profile'])->name('profile');
     // Route untuk memperbarui nama pengguna
@@ -79,9 +82,16 @@ Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
 
     Route::post('/dashboard/data-mobil', [CarController::class, 'store'])->name('cars.store');
 
+    Route::post('/dashboard/data-mobil', [CarController::class, 'store'])->name('cars.store');
+
     Route::put('/dashboard/data-mobil/{car}', [CarController::class, 'update'])->name('cars.update');
 
     Route::delete('/dashboard/data-mobil/{car}', [CarController::class, 'destroy'])->name('cars.destroy');
+    //Route untuk halaman booking mobil
+    Route::get('/dashboard/data-car-berjalan', [BookingController::class, 'index'])->name('data-car-berjalan');
+    Route::get('/dashboard/data-booking', [BookingController::class, 'databookingDashboard'])->name('data-booking.dashboard');
+    Route::post('/admin/bookings/{id}/approve', [BookingController::class, 'approve'])->name('admin.bookings.approve');
+    Route::post('/admin/bookings/{id}/reject', [BookingController::class, 'reject'])->name('admin.bookings.reject');
 
     Route::get('/dashboard/users', [UserController::class, 'usersDashboard'])->name('users.dashboard');
 
